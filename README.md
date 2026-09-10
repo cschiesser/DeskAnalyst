@@ -120,7 +120,7 @@ DeskAnalyst/
 ├── docker-compose.yml
 ├── configs/
 │   └── default.yaml
-├── data/                  # gitignored — cached filings & transcripts
+├── data/                  # gitignored cached filings & transcripts
 ├── docs/
 │   └── architecture.svg
 ├── src/DeskAnalyst/
@@ -147,43 +147,34 @@ DeskAnalyst/
 ```bash
 git clone https://github.com/cschiesser/DeskAnalyst.git
 cd DeskAnalyst
-cp .env.example .env          # add API keys
-pip install -e .              # or: uv sync
 
-# ingest a few companies
-python -m DeskAnalyst.ingest --tickers AAPL MSFT NVDA
-
-# run the app
-uvicorn DeskAnalyst.api.main:app --reload    # API
-streamlit run src/Deskanalyst/ui/app.py      # UI
-
-# run the eval
-python eval/run_eval.py
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -e .
 ```
 
----
+### Configuration
 
-## Roadmap
+Copy the environment template and add your own credentials:
 
-**Phase 1 — grounded RAG (portfolio-ready on its own)**
-- [ ] EDGAR ingestion for 3–5 companies
-- [ ] Hybrid retrieval + cross-encoder reranking
-- [ ] Single-shot cited Q&A
-- [ ] Eval harness + populated metrics table
-- [ ] Minimal Streamlit UI
+```bash
+cp .env.example .env
+```
 
-**Phase 2 — agentic**
-- [ ] Question decomposition + tool routing (LangGraph)
-- [ ] Numeric/table extraction tool, cross-company comparator
-- [ ] Request tracing / logging
+Then edit `.env` and set:
 
-**Phase 3 — extensions**
-- [ ] Multimodal figure/table extraction (vision model)
-- [ ] Expose tools as an MCP server
-- [ ] Transcript tone/sentiment signal + relation to subsequent returns (research module)
+- `SEC_USER_AGENT`: your name + email. SEC EDGAR requires a contact string on every request.
+- `ANTHROPIC_API_KEY`: your own key from https://console.anthropic.com (pay-as-you-go; used only for the answer step).
 
----
+### Run the pipeline
 
+```bash
+python -m deskanalyst.ingest --tickers AAPL          # 1. download filings from SEC EDGAR
+python -m deskanalyst.index                          # 2. clean + chunk them
+python -m deskanalyst.retrieve --build               # 3. embed chunks, build the search index
+python -m deskanalyst.retrieve --query "What are Apple's risk factors?"   # 4. semantic search
+python -m deskanalyst.generate --query "What are Apple's risk factors?"   # 5. cited answer
+```
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT see [LICENSE](LICENSE).
