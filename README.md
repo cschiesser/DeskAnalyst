@@ -1,6 +1,6 @@
 # DeskAnalyst
 
-> Ask analyst-grade questions about SEC filings and get answers grounded in — and cited back to — the source.
+> Ask analyst questions about SEC filings and get answers and cited back to the source.
 
 ![status](https://img.shields.io/badge/status-Phase%201%20complete-green)
 ![python](https://img.shields.io/badge/python-3.11+-blue)
